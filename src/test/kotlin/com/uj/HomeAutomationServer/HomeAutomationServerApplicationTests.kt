@@ -1,4 +1,4 @@
-package com.uj..HomeAutomationServer
+package com.uj.HomeAutomationServer
 
 import org.junit.Test
 import org.junit.runner.RunWith
