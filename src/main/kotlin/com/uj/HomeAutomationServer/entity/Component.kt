@@ -7,8 +7,9 @@ import javax.persistence.Id
 
 @Entity
 class Component(
+        val name: String = "",
+        val description: String = "",
+
         @Id @GeneratedValue(strategy = GenerationType.AUTO)
-        val id: Long,
-        val name: String,
-        val description: String
+        val id: Long = 0
 )
