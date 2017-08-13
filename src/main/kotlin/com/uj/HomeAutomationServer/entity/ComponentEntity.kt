@@ -6,7 +6,7 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 
 @Entity
-class Component(
+class ComponentEntity(
         val name: String = "",
         val description: String = "",
 
