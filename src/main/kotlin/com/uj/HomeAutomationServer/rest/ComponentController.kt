@@ -15,7 +15,7 @@ class ComponentController(val componentRepository : ComponentRepository) {
 
     @GetMapping("/test")
     fun getComponentJsonExample() = ConnectedComponents(listOf(
-        ComponentEntity("Temperature Sensor", "Reads the temperature of the surrounding environment", 1),
+        ComponentEntity("Movement Sensor", "Detects movement in the surrounding environment", 1),
         ComponentEntity("Light Sensor", "Reads the light levels of the surrounding environment", 2)
     ))
 
@@ -26,4 +26,7 @@ class ComponentController(val componentRepository : ComponentRepository) {
         //TODO - check if the component already exists before adding it
         componentRepository.save(newComponent)
     }
+
+    @GetMapping("/sensors")
+    fun getSensors() = ConnectedComponents(componentRepository.findAll() as List<ComponentEntity>)
 }
