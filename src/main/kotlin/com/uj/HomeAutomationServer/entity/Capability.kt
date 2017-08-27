@@ -4,17 +4,16 @@ import javax.persistence.*
 
 @Entity
 class Capability(
-        val name: String = "",
-        val description: String = "",
-        val endpointUrl: String = "",
+        var name: String = "",
+        var description: String = "",
+        var endpointUrl: String = "",
 
-        @ManyToOne(cascade = arrayOf(CascadeType.PERSIST, CascadeType.REMOVE))
-        @JoinColumn(name = "component_id")
-        val component: Component,
+        @ManyToOne
+        var automationComponent: AutomationComponent = AutomationComponent(),
 
         @Id @GeneratedValue(strategy = GenerationType.AUTO)
-        val id: Long = 0,
+        var id: Long = 0,
 
         @Version
-        val version: Int = 0
+        var version: Int = 0
 )

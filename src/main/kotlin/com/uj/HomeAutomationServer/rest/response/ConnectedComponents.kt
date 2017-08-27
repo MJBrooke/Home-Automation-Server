@@ -1,5 +1,5 @@
 package com.uj.HomeAutomationServer.rest.response
 
-import com.uj.HomeAutomationServer.entity.Component
+import com.uj.HomeAutomationServer.entity.AutomationComponent
 
-data class ConnectedComponents(val sensors: List<Component>)
+data class ConnectedComponents(val sensors: List<AutomationComponent>)
