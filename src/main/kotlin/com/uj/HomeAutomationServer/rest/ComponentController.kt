@@ -44,18 +44,19 @@ class ComponentController(val automationComponentRepository: AutomationComponent
         automationComponentRepository.save(component)
     }
 
-    @GetMapping("/sensors")
-    fun getSensors() = ConnectedSensorsResponse(automationComponentRepository.findByComponentTypeId(1))
+    @GetMapping("/connectedComponents")
+    fun getConnectedComponents() = ConnectedComponentsResponse(automationComponentRepository.findByComponentTypeId(1), automationComponentRepository.findByComponentTypeId(2))
 
-    @GetMapping("/actuators")
-    fun getActuators() = ConnectedActuatorsResponse(automationComponentRepository.findByComponentTypeId(2))
+    @GetMapping("/{id}")
+    fun getComponentById(@PathVariable id: Long) = automationComponentRepository.findOne(id) ?: throw ComponentNotFoundException("No component found for id: $id")
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ComponentNotFoundException::class)
+    fun handleNotFoundException(e: Exception) = BusinessExceptionResponse(e.message!!)
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityException(e: Exception) = BusinessExceptionResponse("Attempted to add a duplicate automation component")
 }
 
-data class ConnectedSensorsResponse(val sensors: List<AutomationComponent>)
-data class ConnectedActuatorsResponse(val actuators: List<AutomationComponent>)
-
-data class BusinessExceptionResponse(val message: String)
+data class ConnectedComponentsResponse(val sensors: List<AutomationComponent>, val actuators: List<AutomationComponent>)
