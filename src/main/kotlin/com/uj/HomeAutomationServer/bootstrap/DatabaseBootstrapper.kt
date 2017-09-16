@@ -7,25 +7,18 @@ import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.stereotype.Component
 
 @Component
-class DatabaseBootstrapper(@Autowired val componentTypeRepository: ComponentTypeRepository,
-                           @Autowired val automationComponentRepository: AutomationComponentRepository) : ApplicationListener<ContextRefreshedEvent> {
+class DatabaseBootstrapper(val componentTypeRepository: ComponentTypeRepository,
+                           val automationComponentRepository: AutomationComponentRepository,
+                           val flowRepository: FlowRepository) : ApplicationListener<ContextRefreshedEvent> {
 
     override fun onApplicationEvent(event: ContextRefreshedEvent?) {
-        loadComponentTypes()
-        loadComponents()
-    }
 
-    private fun loadComponentTypes() {
+        //SENSOR TYPES
         val sensorType = ComponentType("Sensor")
         val actuatorType = ComponentType("Actuator")
 
         componentTypeRepository.save(sensorType)
         componentTypeRepository.save(actuatorType)
-    }
-
-    private fun loadComponents() {
-        val sensorType = componentTypeRepository.findOne(1)
-        val actuatorType = componentTypeRepository.findOne(2)
 
         //TEMP SENSOR
         val tempSensor = AutomationComponent(11354, "Temperature Sensor", "Reads the ambient temperature of the surrounding atmosphere", "tempSensor", sensorType)
@@ -36,7 +29,7 @@ class DatabaseBootstrapper(@Autowired val componentTypeRepository: ComponentType
         automationComponentRepository.save(tempSensor)
 
         //DOOR LOCK
-        val doorLockActuator = AutomationComponent(84527,"Door Lock", "Locks a door mechanism", "doorLock", actuatorType)
+        val doorLockActuator = AutomationComponent(84527, "Door Lock", "Locks a door mechanism", "doorLock", actuatorType)
 
         val lock = Capability("Lock door", "Lock the door connected to this component", "lock", doorLockActuator)
         doorLockActuator.addCapability(lock)
@@ -59,5 +52,10 @@ class DatabaseBootstrapper(@Autowired val componentTypeRepository: ComponentType
         heaterActuator.addCapability(setTemperature)
 
         automationComponentRepository.save(heaterActuator)
+
+        //TEMPERATURE|HEATER FLOW
+        val tempHeaterFlow = Flow("Auto Heater", tempSensor, readTemp, 10.0, heaterActuator, switchOn)
+        flowRepository.save(tempHeaterFlow)
+
     }
 }

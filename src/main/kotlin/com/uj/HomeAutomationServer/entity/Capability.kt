@@ -12,15 +12,13 @@ class Capability(
         var description: String = "",
         var endpointUrl: String = "",
 
-        @JsonBackReference
-        @ManyToOne
+        @ManyToOne @JsonBackReference
         var automationComponent: AutomationComponent = AutomationComponent(),
 
         @Id @GeneratedValue(strategy = GenerationType.AUTO)
         var id: Long = 0,
 
-        @JsonIgnore
-        @Version
+        @Version @JsonIgnore
         var version: Int = 0
 )
 
