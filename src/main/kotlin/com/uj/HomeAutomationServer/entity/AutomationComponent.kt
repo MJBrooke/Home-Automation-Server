@@ -41,6 +41,7 @@ interface AutomationComponentRepository : JpaRepository<AutomationComponent, Lon
 data class AutomationComponentDto(
         var id: Long = 0,
         var deviceId: Long = 0,
+        var componentTypeId: Long = 0,
         var name: String = "",
         var description: String = "",
         var endpointRoot: String = ""

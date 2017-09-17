@@ -24,3 +24,8 @@ class ComponentType(
 
 @Repository
 interface ComponentTypeRepository : JpaRepository<ComponentType, Long>
+
+data class ComponentTypeDto (
+        var id: Long = 0,
+        var name: String = ""
+)
