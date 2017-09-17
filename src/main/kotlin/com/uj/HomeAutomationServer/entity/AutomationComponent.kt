@@ -1,5 +1,6 @@
 package com.uj.HomeAutomationServer.entity
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import javax.persistence.*
@@ -16,6 +17,7 @@ class AutomationComponent(
         @ManyToOne
         var componentType: ComponentType = ComponentType(),
 
+        @JsonManagedReference
         @OneToMany(mappedBy = "automationComponent", cascade = arrayOf(CascadeType.ALL))
         var capabilities: MutableSet<Capability> = mutableSetOf(),
 

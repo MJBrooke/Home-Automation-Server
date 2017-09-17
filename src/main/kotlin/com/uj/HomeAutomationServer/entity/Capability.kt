@@ -1,5 +1,6 @@
 package com.uj.HomeAutomationServer.entity
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import javax.persistence.*
@@ -10,7 +11,7 @@ class Capability(
         var description: String = "",
         var endpointUrl: String = "",
 
-        @ManyToOne
+        @ManyToOne @JsonBackReference
         var automationComponent: AutomationComponent = AutomationComponent(),
 
         @Id @GeneratedValue(strategy = GenerationType.AUTO)
