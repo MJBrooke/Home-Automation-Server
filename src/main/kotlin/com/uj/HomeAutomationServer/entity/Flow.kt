@@ -1,7 +1,5 @@
 package com.uj.HomeAutomationServer.entity
 
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import javax.persistence.*
@@ -18,7 +16,7 @@ class Flow(
         @ManyToOne
         var sensorCapability: Capability = Capability(),
 
-        var thresholdValue: Double = 0.0,
+        var sensorValue: Double = 0.0,
 
         @ManyToOne
         var actuator: AutomationComponent = AutomationComponent(),
@@ -31,9 +29,22 @@ class Flow(
         @Id @GeneratedValue(strategy = GenerationType.AUTO)
         var id: Long = 0,
 
-        @Version @JsonIgnore
+        @Version
         var version: Int = 0
 )
 
 @Repository
 interface FlowRepository : JpaRepository<Flow, Long>
+
+data class FlowDto (
+        var id: Long = 0,
+        var name: String = "",
+
+        var sensorId: Long = 0,
+        var sensorCapabilityId: Long = 0,
+        var sensorValue: Double = 0.0,
+
+        var actuatorId: Long = 0,
+        var actuatorCapabilityId: Long = 0,
+        var actuationValue: Double = 0.0
+)

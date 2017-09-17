@@ -2,17 +2,33 @@ package com.uj.HomeAutomationServer.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.uj.HomeAutomationServer.entity.AutomationComponent
+import com.uj.HomeAutomationServer.entity.AutomationComponentDto
 import com.uj.HomeAutomationServer.entity.AutomationComponentRepository
+import org.modelmapper.ModelMapper
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/component")
-class ComponentController(val automationComponentRepository: AutomationComponentRepository) {
+class ComponentController(val modelMapper: ModelMapper, val automationComponentRepository: AutomationComponentRepository) {
 
-    @PostMapping("/add/{componentName}")
-    fun addComponent(@PathVariable componentName: String) {
+    private val ID_SENSOR = 1L
+    private val ID_ACTUATOR = 2L
+
+    @GetMapping("/{id}")
+    fun getComponentById(@PathVariable id: Long): AutomationComponentDto =
+        automationComponentRepository.findOne(id)
+            ?.let { return modelMapper.map(it, AutomationComponentDto::class.java) }
+            ?: throw ComponentNotFoundException("No component found for id: $id")
+
+    @GetMapping("/sensor")
+    fun getSensors() = getAutomationComponentDtoByComponentType(ID_SENSOR)
+
+    @GetMapping("/actuator")
+    fun getActuators() = getAutomationComponentDtoByComponentType(ID_ACTUATOR)
+
+    @PostMapping("/add/{componentUrl}")
+    fun addComponent(@PathVariable componentUrl: String) {
         //val newComponent = RestTemplate().getForObject("http://$componentName.local/arduino/deviceInformation", AutomationComponent::class.java)
 
         val jsonDeviceInformationResponse = "{\n" +
@@ -44,19 +60,14 @@ class ComponentController(val automationComponentRepository: AutomationComponent
         automationComponentRepository.save(component)
     }
 
-    @GetMapping("/connectedComponents")
-    fun getConnectedComponents() = ConnectedComponentsResponse(automationComponentRepository.findByComponentTypeId(1), automationComponentRepository.findByComponentTypeId(2))
-
-    @GetMapping("/{id}")
-    fun getComponentById(@PathVariable id: Long) = automationComponentRepository.findOne(id) ?: throw ComponentNotFoundException("No component found for id: $id")
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ComponentNotFoundException::class)
     fun handleNotFoundException(e: Exception) = BusinessExceptionResponse(e.message!!)
 
-    @ResponseStatus(HttpStatus.CONFLICT)
+    //    TODO - add this to a global controller advice class
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityException(e: Exception) = BusinessExceptionResponse("Attempted to add a duplicate automation component")
-}
 
-data class ConnectedComponentsResponse(val sensors: List<AutomationComponent>, val actuators: List<AutomationComponent>)
+    private fun getAutomationComponentDtoByComponentType(componentTypeId: Long) =
+        automationComponentRepository.findByComponentTypeId(componentTypeId)
+                .map { modelMapper.map(it, AutomationComponentDto::class.java) }
+}
