@@ -7,6 +7,7 @@ import javax.persistence.*
 @Entity
 class Flow(
         var name: String = "",
+        var description: String = "",
 
 //        TODO - move the below component/capability/value to an embeddable object
 
@@ -39,6 +40,7 @@ interface FlowRepository : JpaRepository<Flow, Long>
 data class FlowDto (
         var id: Long = 0,
         var name: String = "",
+        var description: String = "",
 
         var sensorId: Long = 0,
         var sensorCapabilityId: Long = 0,

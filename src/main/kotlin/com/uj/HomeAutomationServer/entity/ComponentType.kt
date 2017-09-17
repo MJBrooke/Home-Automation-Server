@@ -23,7 +23,9 @@ class ComponentType(
 )
 
 @Repository
-interface ComponentTypeRepository : JpaRepository<ComponentType, Long>
+interface ComponentTypeRepository : JpaRepository<ComponentType, Long> {
+    fun findByAutomationComponentsId(id: Long) : ComponentType
+}
 
 data class ComponentTypeDto (
         var id: Long = 0,

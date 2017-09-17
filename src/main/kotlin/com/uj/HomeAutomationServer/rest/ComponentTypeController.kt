@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.RestController
 class ComponentTypeController(val modelMapper: ModelMapper, val componentTypeRepository: ComponentTypeRepository) {
 
     @GetMapping("component/{id}/componentType")
-    fun getComponentType(@PathVariable id: Long) = modelMapper.map(componentTypeRepository.findOne(id), ComponentTypeDto::class.java)
+    fun getComponentType(@PathVariable id: Long) = modelMapper.map(componentTypeRepository.findByAutomationComponentsId(id), ComponentTypeDto::class.java)
 }

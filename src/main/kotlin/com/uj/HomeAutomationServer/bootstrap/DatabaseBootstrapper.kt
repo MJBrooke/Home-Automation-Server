@@ -54,7 +54,7 @@ class DatabaseBootstrapper(val componentTypeRepository: ComponentTypeRepository,
         automationComponentRepository.save(heaterActuator)
 
         //TEMPERATURE|HEATER FLOW
-        val tempHeaterFlow = Flow("Auto Heater", tempSensor, readTemp, 10.0, heaterActuator, switchOn)
+        val tempHeaterFlow = Flow("Automatic Heater", "Switches the heater on at a given temperature", tempSensor, readTemp, 10.0, heaterActuator, switchOn)
         flowRepository.save(tempHeaterFlow)
 
     }

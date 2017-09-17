@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class CapabilityController(val modelMapper: ModelMapper, val capabilityRepository: CapabilityRepository) {
 
+    @GetMapping("/capability/{id}")
+    fun getCapabilityById(@PathVariable id: Long) = modelMapper.map(capabilityRepository.findOne(id), CapabilityDto::class.java)
+
     @GetMapping("/component/{id}/capability")
     fun getCapabilitiesByComponent(@PathVariable id: Long) =
             capabilityRepository.findByAutomationComponentId(id)
