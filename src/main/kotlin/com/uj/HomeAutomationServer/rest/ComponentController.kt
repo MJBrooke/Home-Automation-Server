@@ -6,6 +6,7 @@ import com.uj.HomeAutomationServer.entity.AutomationComponentDto
 import com.uj.HomeAutomationServer.entity.AutomationComponentRepository
 import org.modelmapper.ModelMapper
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -64,6 +65,7 @@ class ComponentController(val modelMapper: ModelMapper, val automationComponentR
     fun handleNotFoundException(e: Exception) = BusinessExceptionResponse(e.message!!)
 
     //    TODO - add this to a global controller advice class
+    @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityException(e: Exception) = BusinessExceptionResponse("Attempted to add a duplicate automation component")
 
