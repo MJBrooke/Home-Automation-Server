@@ -1,6 +1,5 @@
 package com.uj.HomeAutomationServer.rest
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.uj.HomeAutomationServer.entity.AutomationComponent
 import com.uj.HomeAutomationServer.entity.AutomationComponentDto
 import com.uj.HomeAutomationServer.entity.AutomationComponentRepository
@@ -8,6 +7,7 @@ import org.modelmapper.ModelMapper
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestTemplate
 
 @RestController
 @RequestMapping("/component")
@@ -30,35 +30,35 @@ class ComponentController(val modelMapper: ModelMapper, val automationComponentR
 
     @PostMapping("/add/{componentUrl}")
     fun addComponent(@PathVariable componentUrl: String) {
-        //val newComponent = RestTemplate().getForObject("http://$componentName.local/arduino/deviceInformation", AutomationComponent::class.java)
+        val newComponent = RestTemplate().getForObject("http://$componentUrl.local/arduino/deviceInformation", AutomationComponent::class.java)
 
-        val jsonDeviceInformationResponse = "{\n" +
-                "    \"deviceId\": \"12345\",\n" +
-                "    \"name\": \"Test\",\n" +
-                "    \"description\": \"Reads the ambient temperature of the surrounding atmosphere\",\n" +
-                "    \"endpointRoot\": \"Test\",\n" +
-                "    \"componentType\": {\n" +
-                "        \"name\": \"Sensor\",\n" +
-                "        \"id\": \"1\"\n" +
-                "    },\n" +
-                "    \"capabilities\": [\n" +
-                "        {\n" +
-                "            \"name\": \"Test\",\n" +
-                "            \"description\": \"Test\",\n" +
-                "            \"endpointUrl\": \"Test\"\n" +
-                "        },\n" +
-                "        {\n" +
-                "            \"name\": \"Test 2\",\n" +
-                "            \"description\": \"Test 2\",\n" +
-                "            \"endpointUrl\": \"Test 2\"\n" +
-                "        }\n" +
-                "    ]\n" +
-                "}"
+//        val jsonDeviceInformationResponse = "{\n" +
+//                "    \"deviceId\": \"12345\",\n" +
+//                "    \"name\": \"Test\",\n" +
+//                "    \"description\": \"Reads the ambient temperature of the surrounding atmosphere\",\n" +
+//                "    \"endpointRoot\": \"Test\",\n" +
+//                "    \"componentType\": {\n" +
+//                "        \"name\": \"Sensor\",\n" +
+//                "        \"id\": \"1\"\n" +
+//                "    },\n" +
+//                "    \"capabilities\": [\n" +
+//                "        {\n" +
+//                "            \"name\": \"Test\",\n" +
+//                "            \"description\": \"Test\",\n" +
+//                "            \"endpointUrl\": \"Test\"\n" +
+//                "        },\n" +
+//                "        {\n" +
+//                "            \"name\": \"Test 2\",\n" +
+//                "            \"description\": \"Test 2\",\n" +
+//                "            \"endpointUrl\": \"Test 2\"\n" +
+//                "        }\n" +
+//                "    ]\n" +
+//                "}"
+//
+//        val mapper = ObjectMapper()
+//        val component = mapper.readValue(jsonDeviceInformationResponse, AutomationComponent::class.java)
 
-        val mapper = ObjectMapper()
-        val component = mapper.readValue(jsonDeviceInformationResponse, AutomationComponent::class.java)
-
-        automationComponentRepository.save(component)
+        automationComponentRepository.save(newComponent)
     }
 
     @ExceptionHandler(ComponentNotFoundException::class)
