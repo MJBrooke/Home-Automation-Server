@@ -14,7 +14,7 @@ class CapabilityController(val modelMapper: ModelMapper, val capabilityRepositor
     fun getCapabilityById(@PathVariable id: Long) = modelMapper.map(capabilityRepository.findOne(id), CapabilityDto::class.java)
 
     @GetMapping("/component/{id}/capability")
-    fun getCapabilitiesByComponent(@PathVariable id: Long) =
+    fun getCapabilitiesByComponentId(@PathVariable id: Long) =
             capabilityRepository.findByAutomationComponentId(id)
                     .map { modelMapper.map(it, CapabilityDto::class.java) }
 }

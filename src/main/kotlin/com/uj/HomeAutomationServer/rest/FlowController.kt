@@ -1,16 +1,31 @@
 package com.uj.HomeAutomationServer.rest
 
-import com.uj.HomeAutomationServer.entity.FlowDto
-import com.uj.HomeAutomationServer.entity.FlowRepository
+import com.uj.HomeAutomationServer.entity.*
 import org.modelmapper.ModelMapper
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/flow")
-class FlowController(val modelMapper: ModelMapper, val flowRepository: FlowRepository) {
+class FlowController(
+        val modelMapper: ModelMapper,
+        val flowRepository: FlowRepository,
+        val componentRepository: AutomationComponentRepository,
+        val capabilityRepository: CapabilityRepository) {
 
     @GetMapping
     fun getFlows() = flowRepository.findAll().map { modelMapper.map(it, FlowDto::class.java) }
+
+    @PostMapping
+    fun postFlow(@RequestBody flowDto: FlowDto): Flow? =
+        with(flowDto) {
+            val newFlow = Flow(name = name, description = description, sensorValue = sensorValue, actuationValue = actuationValue)
+
+            newFlow.sensor = componentRepository.findOne(sensorId)
+            newFlow.actuator = componentRepository.findOne(actuatorId)
+
+            newFlow.sensorCapability = capabilityRepository.findOne(sensorCapabilityId)
+            newFlow.actuatorCapability = capabilityRepository.findOne(actuatorCapabilityId)
+
+            return flowRepository.save(newFlow)
+        }
 }
