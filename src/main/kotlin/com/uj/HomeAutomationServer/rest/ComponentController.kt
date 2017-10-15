@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate
 
 @RestController
 @RequestMapping("/component")
-class ComponentController(val modelMapper: ModelMapper, val automationComponentRepository: AutomationComponentRepository) {
+class ComponentController(val modelMapper: ModelMapper, val rest: RestTemplate, val automationComponentRepository: AutomationComponentRepository) {
 
     private val ID_SENSOR = 1L
     private val ID_ACTUATOR = 2L
@@ -31,8 +31,7 @@ class ComponentController(val modelMapper: ModelMapper, val automationComponentR
 
     @PostMapping("/add/{componentUrl}")
     fun addComponent(@PathVariable componentUrl: String): AutomationComponent? {
-//        TODO - Autowire the RestTemplate
-        val component = RestTemplate().getForObject("http://$componentUrl.local/arduino/deviceInformation", AutomationComponent::class.java)
+        val component = rest.getForObject("http://$componentUrl.local/arduino/deviceInformation", AutomationComponent::class.java)
 
         return automationComponentRepository.save(component)
     }

@@ -32,3 +32,7 @@ data class CapabilityDto(
         var description: String = "",
         var endpointUrl: String = ""
 )
+
+data class CapabilityResponse(
+        var value: String = ""
+)

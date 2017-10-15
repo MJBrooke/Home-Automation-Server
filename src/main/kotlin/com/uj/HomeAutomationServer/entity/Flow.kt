@@ -32,7 +32,13 @@ class Flow(
 
         @Version
         var version: Int = 0
-)
+
+
+) {
+    override fun toString(): String {
+        return "Flow(name='$name', description='$description', sensor=$sensor, sensorCapability=$sensorCapability, sensorValue=$sensorValue, actuator=$actuator, actuatorCapability=$actuatorCapability, actuationValue=$actuationValue, id=$id, version=$version)"
+    }
+}
 
 @Repository
 interface FlowRepository : JpaRepository<Flow, Long>
