@@ -8,6 +8,7 @@ import javax.persistence.*
 class Flow(
         var name: String = "",
         var description: String = "",
+        var active: Boolean = false,
 
 //        TODO - move the below component/capability/value to an embeddable object
 
@@ -18,6 +19,8 @@ class Flow(
         var sensorCapability: Capability = Capability(),
 
         var sensorValue: Double = 0.0,
+
+        var sensorMoreThan: Boolean = false,
 
         @ManyToOne
         var actuator: AutomationComponent = AutomationComponent(),
@@ -32,8 +35,6 @@ class Flow(
 
         @Version
         var version: Int = 0
-
-
 ) {
     override fun toString(): String {
         return "Flow(name='$name', description='$description', sensor=$sensor, sensorCapability=$sensorCapability, sensorValue=$sensorValue, actuator=$actuator, actuatorCapability=$actuatorCapability, actuationValue=$actuationValue, id=$id, version=$version)"
@@ -41,7 +42,12 @@ class Flow(
 }
 
 @Repository
-interface FlowRepository : JpaRepository<Flow, Long>
+interface FlowRepository : JpaRepository<Flow, Long> {
+
+    fun findByActuatorId(id: Long): List<Flow>
+
+    fun findByActiveFalse(): List<Flow>
+}
 
 data class FlowDto (
         var id: Long = 0,
@@ -51,6 +57,7 @@ data class FlowDto (
         var sensorId: Long = 0,
         var sensorCapabilityId: Long = 0,
         var sensorValue: Double = 0.0,
+        var sensorMoreThan: String = "",
 
         var actuatorId: Long = 0,
         var actuatorCapabilityId: Long = 0,

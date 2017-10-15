@@ -20,15 +20,18 @@ class DatabaseBootstrapper(val componentTypeRepository: ComponentTypeRepository,
         componentTypeRepository.save(sensorType)
         componentTypeRepository.save(actuatorType)
 
-        //MOVEMENT SENSOR
+
+
 //        val movementSensor = AutomationComponent(11354, "Movement Sensor", "Detects movement around the sensor", "movementSensor", sensorType)
 //
 //        val detectMovement = Capability("Detect movement", "Detect movement", "detect", movementSensor)
 //        movementSensor.addCapability(detectMovement)
 //
 //        automationComponentRepository.save(movementSensor)
-
-        //DOOR LOCK
+//
+//
+//
+//
 //        val doorLockActuator = AutomationComponent(84527, "Door Lock", "Locks a door mechanism", "doorLock", actuatorType)
 //
 //        val lock = Capability("Lock door", "Lock the door connected to this component", "lock", doorLockActuator)
@@ -38,8 +41,10 @@ class DatabaseBootstrapper(val componentTypeRepository: ComponentTypeRepository,
 //        doorLockActuator.addCapability(unlock)
 //
 //        automationComponentRepository.save(doorLockActuator)
-
-        //HEATER CONTROLLER
+//
+//
+//
+//
 //        val heaterActuator = AutomationComponent(44596, "Heater", "Controls a heater and its temperature", "heater", actuatorType)
 //
 //        val switchOn = Capability("Switch On", "Switches the heater on with the current temperature setting", "on", heaterActuator)
@@ -53,7 +58,9 @@ class DatabaseBootstrapper(val componentTypeRepository: ComponentTypeRepository,
 //
 //        automationComponentRepository.save(heaterActuator)
 
-        //TEMPERATURE|HEATER FLOW
+
+
+
 //        val tempHeaterFlow = Flow("Automatic Doorlock", "Unlocks the door if movement is detected", movementSensor, detectMovement, actuator = heaterActuator, actuatorCapability = switchOn)
 //        flowRepository.save(tempHeaterFlow)
 

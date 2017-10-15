@@ -26,6 +26,8 @@ class FlowController(
             newFlow.sensorCapability = capabilityRepository.findOne(sensorCapabilityId)
             newFlow.actuatorCapability = capabilityRepository.findOne(actuatorCapabilityId)
 
+            newFlow.sensorMoreThan = sensorMoreThan == "true"
+
             return flowRepository.save(newFlow)
         }
 }
