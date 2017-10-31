@@ -24,7 +24,8 @@ class FlowController(
             newFlow.actuator = componentRepository.findOne(actuatorId)
 
             newFlow.sensorCapability = capabilityRepository.findOne(sensorCapabilityId)
-            newFlow.actuatorCapability = capabilityRepository.findOne(actuatorCapabilityId)
+            newFlow.actuatorCapabilityIfSensorValMet = capabilityRepository.findOne(actuatorCapabilityIdIfSensorValMet)
+            newFlow.actuatorCapabilityIfSensorValNotMet = capabilityRepository.findOne(actuatorCapabilityIdIfSensorValNotMet)
 
             newFlow.sensorMoreThan = sensorMoreThan == "true"
 
