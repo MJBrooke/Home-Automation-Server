@@ -16,94 +16,81 @@ class Main(val flowRepository: FlowRepository, val asyncRest: AsyncRestTemplate)
     override fun run(args: ApplicationArguments?) {
 
         while (true) {
+            val flowsGroupedBySensorCapabilityId = getFlowsGroupedBySensorCapabilityId()
 
-            val flowExecutions = ArrayList<FlowExecutionHelper>()
+            val flowsWithSensorValueFutures = getSensorValuesForEachFlow(flowsGroupedBySensorCapabilityId)
 
-            //Get all flows, grouped by the sensor capability (so that one REST call will satisfy them all)
-            val flowsGroupedBySensorCapabilityId = flowRepository.findAll().groupBy { it.sensorCapability.id }
-
-            //For each group of flows with the same sensor capability trigger...
-            flowsGroupedBySensorCapabilityId.map { list ->
-
-                //Get the first flow
-                val firstFlow = list.value.first()
-
-                println("Reading sensor value")
-
-                //Async request the value from the sensor
-                val future = asyncRest.getForEntity(
-                        buildUrl(firstFlow.sensor.endpointRoot, firstFlow.sensorCapability.endpointUrl),
-                        CapabilityResponse::class.java
-                )
-
-                //Associate each of the flows in the group with the same single future instance
-                list.value.map { flow ->
-                    flowExecutions.add(FlowExecutionHelper(flow, future))
-                }
-            }
-
-            //For each flow/future association...
-            flowExecutions.map {
-
-                //Get the response value from the future
-                val response = it.future.get().body as CapabilityResponse
-//                println("=== Execution ===")
-//                println("Execution Response: $response")
-
-                //Check if flow conditions were met
-                val sensorConditionMet = when (it.flow.sensorMoreThan) {
-                    true -> response.value.toDouble() >= it.flow.sensorValue
-                    false -> response.value.toDouble() < it.flow.sensorValue
-                }
-
-                //Trigger positive actuation
-                if (sensorConditionMet && !it.flow.wasMet) {
-                    triggerActuation(it.flow, true)
-                } else if (!sensorConditionMet && it.flow.wasMet) {
-                    triggerActuation(it.flow, false)
-                }
-
-                println()
-            }
+            triggerActuations(flowsWithSensorValueFutures)
         }
     }
 
-//    private fun checkSensorValues(flowsGroupedBySensorCapabilityId: Map<Long, List<Flow>>): ArrayList<FlowExecutionHelper> {
-//        val flowExecutions = ArrayList<FlowExecutionHelper>()
-//
-//        flowsGroupedBySensorCapabilityId.map { list ->
-//
-//            //Get the first flow
-//            val firstFlow = list.value.first()
-//
-//            println("Reading sensor value")
-//
-//            //Async request the value from the sensor
-//            val future = asyncRest.getForEntity(
-//                    buildUrl(firstFlow.sensor.endpointRoot, firstFlow.sensorCapability.endpointUrl),
-//                    CapabilityResponse::class.java
-//            )
-//
-//            //Associate each of the flows in the group with the same single future instance
-//            list.value.map { flow ->
-//                flowExecutions.add(FlowExecutionHelper(flow, future))
-//            }
-//        }
-//
-//        return flowExecutions
-//    }
+    private fun getFlowsGroupedBySensorCapabilityId() = flowRepository.findAll().groupBy { it.sensorCapability.id }
 
-    private fun triggerActuation(flow: Flow, flowMet: Boolean) {
+    private fun getSensorValuesForEachFlow(flowsGroupedBySensorCapabilityId: Map<Long, List<Flow>>): ArrayList<FlowExecutionHelper> {
+        val flowExecutions = ArrayList<FlowExecutionHelper>()
 
-        val capabilityToTrigger = if(flowMet) flow.actuatorCapabilityIfSensorValMet else flow.actuatorCapabilityIfSensorValNotMet
+        flowsGroupedBySensorCapabilityId.map { flowMapEntry ->
 
-        asyncRest.getForEntity(
-                buildUrl(flow.actuator.endpointRoot, capabilityToTrigger.endpointUrl),
-                String::class.java //For an actuation, we don't care about the response (at this point in the system's development)
-        )
+            //Get the first flow
+            val firstFlow = flowMapEntry.value.first()
+
+            println("Reading sensor value from ${firstFlow.sensor.name}'s '${firstFlow.sensorCapability.name}' capability")
+
+            //Async request the value from the sensor
+            val future = asyncRest.getForEntity(
+                    buildUrl(firstFlow.sensor.endpointRoot, firstFlow.sensorCapability.endpointUrl),
+                    CapabilityResponse::class.java
+            )
+
+            //Associate each of the flows in the group with the same single future instance
+            flowMapEntry.value.map { flow ->
+                flowExecutions.add(FlowExecutionHelper(flow, future))
+            }
+        }
+
+        return flowExecutions
+    }
+
+    private fun triggerActuations(flowExecutions: ArrayList<FlowExecutionHelper>) {
+        val futures = ArrayList<ListenableFuture<ResponseEntity<String>>>()
+
+        flowExecutions.map {
+
+            //Get the response value from the future
+            val sensorResponse = it.future.get().body as CapabilityResponse
+
+            //Check if flow conditions were met
+            val sensorConditionMet = when (it.flow.sensorMoreThan) {
+                true -> sensorResponse.value.toDouble() >= it.flow.sensorValue
+                false -> sensorResponse.value.toDouble() < it.flow.sensorValue
+            }
+
+            when {
+                sensorConditionMet && !it.flow.wasMet -> futures.add(triggerActuation(it.flow, true))
+                !sensorConditionMet && it.flow.wasMet -> futures.add(triggerActuation(it.flow, false))
+                else -> {}
+            }
+        }
+
+        //Force all actuations to complete before checking further sensor values
+        futures.map { it.get() }
+
+        if (flowExecutions.isNotEmpty())
+            println()
+    }
+
+    private fun triggerActuation(flow: Flow, flowMet: Boolean): ListenableFuture<ResponseEntity<String>> {
+        val capabilityToTrigger = if (flowMet) flow.actuatorCapabilityIfSensorValMet else flow.actuatorCapabilityIfSensorValNotMet
+
+        println("\tTriggering the '${capabilityToTrigger.name}' capability on the ${flow.actuator.name} actuator")
 
         flow.wasMet = flowMet
         flowRepository.save(flow)
+
+        return asyncRest.getForEntity(
+                buildUrl(flow.actuator.endpointRoot, capabilityToTrigger.endpointUrl),
+                String::class.java //For an actuation, we don't care about the response (at this point in the system's development)
+        )
     }
 
     private fun buildUrl(rootUrl: String, capabilityUrl: String) = "http://$rootUrl.local/arduino/$capabilityUrl"
